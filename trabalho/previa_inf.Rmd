@@ -1,0 +1,204 @@
+---
+title: "Trabalho de Inferência"
+author: 
+- Jayme Gomes dos Santos Junior
+- Luciana Helena Kowalski
+date: "`r format(Sys.Date(), '%d/%B/%Y')`"
+output:
+  pdf_document: default
+  word_document: default
+  html_document: 
+    code_folding: hide
+    number_sections: yes
+    toc: yes
+    toc_float: yes
+subtitle: Estimação dos Parâmetros de um Modelo de Regressão Exponencial com Censura Intervalar
+header-includes: \usepackage[brazil]{babel}
+                 \usepackage{amsmath}
+                 \usepackage{float}
+                 \usepackage{bm}
+csl: ABNT_UFPR_2011.csl
+bibliography: refs.bib
+---
+
+```{r, include=FALSE}
+
+knitr::opts_chunk$set(cache = TRUE)
+```
+
+# Introdução 
+
+Censura intervalar ocorre quando o objeto de estudo é inspecionado em períodos de tempo distintos *U* e *V* e ocorre um evento de interesse neste intervalo de tal maneira que o exato momento do evento é desconhecido, e.g., *U* < t $\leq$ *V*.
+
+Existem três principais tipos de censura:
+ 
+ 1. *U* = 0, chamamos de censura à esquerda;
+ 2. *V* = $\infty$, censura à direita;
+ 3. 0 < *U* < *V* = a, onde a $\in$ ${\rm I\!R}$ , ou seja, sabe-se o início e fim do        intervalo, a **censura intervalar**(CI) que será tratada neste trabalho.
+
+Censura intervalar ocorre com mais frequência em análises longitudinais e experimentações clínicas. Acontecendo mais em virtude do crescimento de dados envolvendo estudos sobre o vírus HIV. 
+
+Este tipo de dados eram analisados com técnicas tradicionais de sobrevivência, onde se assumia que o evento de interesse ocorreu no fim ou na metade do intervalo, o que gerava erros de estimação e viés nos resultados @Lindsey1998. Após investigações a distribuição exponencial se mostrou mais eficaz quando se sabe o momento das inspeções @article.
+
+Para estimar os parâmetros da Regressão Exponencial com Censura Intervalar será utilizado o método da **Máxima** **Verissimilhança**(MV), assim como @Peng2009, mas com a utilização do software **R**(@R) para todas as simulações e análises.
+
+Os objetivos do presente trabalho são: *i)* simular uma base de dados e os resultados com parâmetros fixos; *ii)* estimar os parâmetros usando o método (MV); *iii)* comparar os resultados dos parâmetros estimados com os da simulação utilizando intervalo de confiança com $\boldsymbol{\alpha}$=0,05.
+
+# Modelo
+
+Regressão Exponencial com Censura Intervalar consiste em um conjunto de intervalos independentes $\boldsymbol{Y_i}$ que seguem uma distribuição exponencial de parâmetros $\boldsymbol{\lambda_i}$, , com **i** = {1, ..., n}, logo:
+
+$$
+\boldsymbol{\underline{Y}} \sim Exp(\boldsymbol{\underline{\lambda}})
+$$
+Onde cada $\boldsymbol{Y_i}$ é um intervalo que contêm o evento de interesse $\boldsymbol{Y_i}$ = ($\boldsymbol{Y_{iu}}$ ; $\boldsymbol{Y_{iv}}$), sendo u o limite inferior e v o limite superior do intervalo, u e v > 0, pois se trata de intervalos de tempo, logo $\boldsymbol{\underline{Y}}$ é um vetor positivo.
+
+O parâmetro $\boldsymbol{\lambda_i}$ = $\boldsymbol{\beta_0}$ + $\boldsymbol{\beta_1}\boldsymbol{x_i}$ com ${\underline{X}}$ = {$\boldsymbol{x_i}$ = [0 ; p]**|**i = {1, ..., n}, p $\in$ ${\rm I\!R}$} sendo um vetor de coeficientes de regressão.
+
+Logo:
+
+$$
+f(\underline{y};\underline{\lambda}) = (\beta_0 + \beta_1{x_i}){e^{-(\beta_0 + \beta_1{x_i}){y_i}}} , (\beta_0 + \beta_1{x_i}) > 0, y_i > 0
+$$
+
+# Simulação
+
+Como o objetivo é estimar os parâmetros $\beta_0$ e $\beta_1$, primeiro serão fixados seus valores e os valores do vetor dos coeficientes de regressão (${\underline{X}}$) como uma sequência de cem valores entre 0 e 2 igualmente espaçados. Então criar $\underline{\boldsymbol\lambda}$ = exp($\boldsymbol{\beta_0}$ + $\boldsymbol{\beta_1}\boldsymbol{x_i}$) para garantir que todos os valores sejam positivos e pequenos, como mostrado pela função `summary()`.
+
+```{r}
+b0 = log(1)
+b1 = -2
+x <- seq(0, 2, l = 100)
+lambda = exp(b0 +b1*x)
+summary(lambda)
+```
+
+A maneira de simular os intervalos $\boldsymbol{\underline{Y}}$ foi primeiramente simular cem observações de variáveis aleatórias que sigam uma exponencial com os parâmetros calculados anteriormente utilizando a função `rexp()` que retorna valores que seguem a exponencial dado o parâmetro passado. Novamente foi usada a função `summary()` mostrando que todas as observações são positivas.
+
+```{r}
+set.seed(123)
+y = rexp(100, rate = lambda)
+summary(y)
+```
+
+Para mostrar que as observações condizem com a distribuição exponencial, será usada a função `plot()` das observações dado os valores dos coeficientes de regressão(${\underline{X}}$).
+
+```{r}
+plot(y ~ x)
+```
+
+Simulando agora a (**CI**), ciando $\boldsymbol{\underline{U}}$(limites inferiores) e $\boldsymbol{\underline{V}}$(limites superiores), usando as observações criadas anteriormente, subtraindo e somando 0.03 a cada uma delas. Este valor foi escolhido para garantir que $\boldsymbol{\underline{Y}}$ > 0 como estipulado anteriormente. E criando uma base de dados com a função `data.frame()`, pois agora cada observação tem dois valores que são as inspeções dos objetos de estudo ao longo do tempo.
+
+```{r}
+yu <- y - 0.03
+yv <- y + 0.03
+censura <- data.frame(yu, yv)
+summary(censura)
+```
+
+Novamente a função `summary()` mostra que todos os intervalos são positivos como estipulado anteriormente.
+
+Através dos gráficos é possível ver que os intervalos seguem uma distribuição exponencial.
+
+```{r}
+par(mfrow = c(1,2))
+plot(censura$yu)
+plot(censura$yv)
+```
+
+# Verossimilhança
+
+Existe mais de uma maneira de chegar a função de verossimilhança deste modelo, portanto para este trabalho será utilizado um dos métodos utilizados na tese @Peng2009, onde:
+
+$$
+{L}(\underline{y};\underline{\lambda}) = \prod_{i=1}^n\int\limits_{y_{iu}}^{y_{iv}}f({y_i};\lambda_i)dy,
+$$
+$$
+= \prod_{i=1}^n\bigg[F({y_{iv}};\lambda_i) - F({y_{iu}};\lambda_i)\bigg]
+$$
+Portanto a verossimilhança é subtrair da função acumulada da exponencial em ${y_v}$ a função acumulada em ${y_u}$ para cada ${y_i}$ e depois multiplicar os resultados.
+
+## Log-Verossimilhança
+
+$$
+l(\underline{y};\underline{\lambda}) = \sum_{i=1}^n\bigg[log\bigg(F({y_{iv}};\lambda_i) - F({y_{iu}};\lambda_i)\bigg)\bigg]
+$$
+
+## Estimador de Máxima Verossimilhança
+
+Como as derivadas se tornam impossíveis analiticamente, a partir deste ponto os estimadores de máxima verossimilhança(EMV) para ${\beta_0}$ e ${\beta_1}$ serão feitos computacionalmente através de um maximizador numérico da função $l(\underline{y};\underline{\lambda})$ usando a função `optim()` que é usada para minimizar funções com dois ou mais parâmetros, logo a função $l(\underline{y};\underline{\lambda})$ será multiplicada por -1 para que a função funcione.
+
+## Função de Verossimilhança, Log-Verossimilhança e Cálculo da Verossimilhança da Simulação
+
+```{r}
+# Verossimilhança
+L_censura <- c()
+for(i in 1:100){
+  L_censura[i] <- pexp(censura$yv[i], rate = lambda[i]) - pexp(censura$yu[i], rate = lambda[i])
+}
+# Log-Verossimilhança
+ll_censura <- log(L_censura)
+# Cálculo da Verossimilhança
+vero <- sum(-ll_censura)
+```
+
+Acima estão descritas computacionalmente as funções ${L}(\underline{y};\underline{\lambda})$ e $l(\underline{y};\underline{\lambda})$ respectivamente com o detalhe de que os produtórios e somatórios estarem omitidos, pois estão contemplados no cálculo da verossimilhança(estas funções executadas nessa ordem resultam exatamente na função de log-verossimilhança mostrada anteriormente), que é o número que representa a verossimilhança da simulação.
+
+Como resultado temos que com $\beta_0$ = `r b0`, $\beta_1$ = `r b1`, temos uma verossimilhança = `r vero`.
+
+Agora deve ser criada uma função para calcular a verossimilhança com $\beta_0$ e $\beta_1$ desconhecidos, para testar o EMV.
+
+```{r}
+#log-verossimilhança
+ll <- function(theta, inferior, superior, x){
+  lambda = exp(theta[1] + theta[2]*x)
+  output <- -sum(log(pexp(superior, rate = lambda) - pexp(inferior, rate = lambda)))
+  return(output)
+}
+# Avaliandolog(0.5), -0.5
+ll(theta = c(log(1), -2), inferior = censura$yu, superior = censura$yv, x = x)
+ll(theta = c(log(0.5), -0.5), inferior = censura$yu, superior = censura$yv, x = x)
+```
+
+Depois de pronta, a função foi avaliada usando os parâmetros $\beta_0$ e $\beta_1$ da simulação e depois com valores diferentes para mostrar que funciona corretamente.
+
+Para calcular o EMV para os betas, será usada a função `optim()` para maximizar a $l(\underline{y};\underline{\lambda})$
+
+```{r}
+# Encontrando EMV Numericamente
+oo <- optim(par = c(1, -3), fn = ll, inferior = censura$yu, 
+            superior = censura$yv, x = x, hessian = TRUE)
+str(oo)
+inv_Io <- solve(oo$hessian)
+inv_Io
+```
+
+Comparando os resultados do EMV com os da simulação temos que:
+
+$\beta_0$ e $\beta_1$ simulados = `r b0` e`r b1`, já os estimados = `r oo$par[1]` e `r oo$par[2]`.
+
+A verossimilhança simulada = `r vero` e a estimada = `r oo$value`.
+
+Para construir os intervalos de confiança para $\beta_0$ e $\beta_1$, é preciso achar a matriz de informação de Fisher(matriz de informação esperada) ${I_e}(\beta_0,\beta_1)$ = -E[${I_o}(\beta_0,\beta_1)$]. Partindo da Matriz de informação observada ${I_o}(\beta_0,\beta_1)$. 
+
+```{r}
+# Matriz de Informação Observada
+oo$hessian
+# Utilizando a função 'solve()' chega-se na matriz de informação esperada
+Ie <- solve(oo$hessian)
+Ie
+```
+
+# Intervalo de Confiança
+
+Construindo os intervalos de confiança para $\beta_0$ e $\beta_1$ com $\boldsymbol{\alpha}$=0,05:
+
+```{r}
+ic_Max <- oo$par + qnorm(0.975)*sqrt(diag(inv_Io)) 
+ic_Min <- oo$par - qnorm(0.975)*sqrt(diag(inv_Io))
+cbind(ic_Min, oo$par, ic_Max)
+```
+
+Com base nos intervalos de confiança é possível dizer que o EMV para $\beta_0$ e $\beta_1$ do modelo de regressão exponencial com censura intervalar funciona de forma satisfatória.
+
+# Referências

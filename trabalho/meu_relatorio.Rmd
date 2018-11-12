@@ -1,0 +1,45 @@
+---
+title: "Meu relatório dinâmico"
+author: "Meu Nome"
+date: "`r format(Sys.Date(), '%d/%B/%Y')`"
+output: html_document
+---
+
+````{r echo = F, eval = T, prompt = T, cache = T, results = 'hide'}
+dados2 <- read.table('blog_tutorial_rmarkdown_dados_02.csv', header = T, as.is = T, sep = '\t')
+#numero de familias
+n.fam <- length(unique(dados2$FAMILIA))
+print(n.fam)
+#numero de especies
+n.spp <- length(unique(dados2$ESPECIE))
+print(n.spp)
+# quantos generos inventariados
+n.gen <- length(unique(dados2$GENERO))
+print(n.gen)
+# qual e o numero de parcelas
+n.parcela <- length(unique(dados2$PARCELA))
+print(n.parcela)
+# sumario estatistico
+media <- mean(dados2$DAP_CM)
+print(media)
+d.pad <- sd(dados2$DAP_CM)
+print(d.pad)
+n.amostral <- nrow(dados2)
+print(n.amostral)
+````
+
+### Resultados
+Foram coletadas `r n.spp` espécies pertencentes a `r n.fam`  famílias e `r n.gen` gêneros. A amostragem incluiu `r n.parcela` parcelas e `r n.amostral` indivíduos. A média de DAP foi `r media` cm e o desvio padrão `r d.pad` cm.
+
+A figura abaixo mostra quantidade de amostras coletadas ordenadas da menos abundante para a mais abundante.
+
+````{r echo = F, eval = T, prompt = T, comments = '', message = F, warnings = ''}
+library(ggplot2)
+library(magrittr)
+library(dplyr)
+as.data.frame(count(dados2,FAMILIA)) %>% 
+    ggplot(aes(x = reorder(FAMILIA, -n), y = n )) + geom_bar(stat = 'identity', width=0.5) +
+    coord_flip() + theme_minimal() +
+    xlab('Famílias de angiospermas, segundo APG III (2009)') + ylab('Quantidade de amostras') -> plot.taxa
+plot.taxa
+````
