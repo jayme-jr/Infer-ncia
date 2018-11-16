@@ -3,7 +3,7 @@ title: "Trabalho de Inferência"
 author: 
 - Jayme Gomes dos Santos Junior
 - Luciana Helena Kowalski
-date: "`r format(Sys.Date(), '%d/%B/%Y')`"
+date: "`r format(Sys.Date(), '%d/%m/%Y')`"
 output:
   pdf_document: default
   word_document: default
@@ -175,7 +175,7 @@ inv_Io
 
 Comparando os resultados do EMV com os da simulação temos que:
 
-$\beta_0$ e $\beta_1$ simulados = `r b0` e`r b1`, já os estimados = `r oo$par[1]` e `r oo$par[2]`.
+$\beta_0$ e $\beta_1$ simulados = `r b0` e `r b1`, já os estimados = `r sprintf("%0.3f", oo$par[1])` e `r sprintf("%0.3f", oo$par[2])`.
 
 A verossimilhança simulada = `r sprintf("%0.3f", vero)` e a estimada = `r sprintf("%0.3f", oo$value)`.
 
