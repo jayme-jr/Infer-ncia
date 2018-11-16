@@ -144,7 +144,7 @@ vero <- sum(-ll_censura)
 
 Acima estão descritas computacionalmente as funções ${L}(\underline{y};\underline{\lambda})$ e $l(\underline{y};\underline{\lambda})$ respectivamente com o detalhe de que os produtórios e somatórios estarem omitidos, pois estão contemplados no cálculo da verossimilhança(estas funções executadas nessa ordem resultam exatamente na função de log-verossimilhança mostrada anteriormente), que é o número que representa a verossimilhança da simulação.
 
-Como resultado temos que com $\beta_0$ = `r b0`, $\beta_1$ = `r b1`, temos uma verossimilhança = `r vero`.
+Como resultado temos que com $\beta_0$ = `r b0`, $\beta_1$ = `r b1`, temos uma verossimilhança = `r sprintf("%0.3f", vero)`.
 
 Agora deve ser criada uma função para calcular a verossimilhança com $\beta_0$ e $\beta_1$ desconhecidos, para testar o EMV.
 
@@ -155,7 +155,7 @@ ll <- function(theta, inferior, superior, x){
   output <- -sum(log(pexp(superior, rate = lambda) - pexp(inferior, rate = lambda)))
   return(output)
 }
-# Avaliandolog(0.5), -0.5
+# Avaliando nos betas da simulação e em outros para comparação
 ll(theta = c(log(1), -2), inferior = censura$yu, superior = censura$yv, x = x)
 ll(theta = c(log(0.5), -0.5), inferior = censura$yu, superior = censura$yv, x = x)
 ```
@@ -177,7 +177,7 @@ Comparando os resultados do EMV com os da simulação temos que:
 
 $\beta_0$ e $\beta_1$ simulados = `r b0` e`r b1`, já os estimados = `r oo$par[1]` e `r oo$par[2]`.
 
-A verossimilhança simulada = `r vero` e a estimada = `r oo$value`.
+A verossimilhança simulada = `r sprintf("%0.3f", vero)` e a estimada = `r sprintf("%0.3f", oo$value)`.
 
 Para construir os intervalos de confiança para $\beta_0$ e $\beta_1$, é preciso achar a matriz de informação de Fisher(matriz de informação esperada) ${I_e}(\beta_0,\beta_1)$ = -E[${I_o}(\beta_0,\beta_1)$]. Partindo da Matriz de informação observada ${I_o}(\beta_0,\beta_1)$. 
 
