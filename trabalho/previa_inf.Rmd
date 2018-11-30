@@ -28,21 +28,23 @@ knitr::opts_chunk$set(cache = TRUE)
 
 # Introdução 
 
-Censura intervalar ocorre quando o objeto de estudo é inspecionado em períodos de tempo distintos *U* e *V* e ocorre um evento de interesse neste intervalo de tal maneira que o exato momento do evento é desconhecido, e.g., *U* < t $\leq$ *V*.
+A censura intervalar é utilizada principalmente em estudos longitudinais e em pesquisas clínicas. Para isso, são realizadas avaliações de medidas repetidas nos indivíduos alvo, o que geralmente ocorre com tempos pré-estabelecidos de avaliação. Nestes estudos espera-se que os indivíduos desenvolvam o evento em estudo entre os tempos de avaliação, estes tempos são divididos em dois pontos chamados de *U* e *V*.  O tempo exato de ocorrência do evento (t) é desconhecido, portanto temos que *U* < t $\leq$ *V*, sendo assim chamado de censura intervalar @Peng2009.
 
-Existem três principais tipos de censura:
- 
- 1. *U* = 0, chamamos de censura à esquerda;
- 2. *V* = $\infty$, censura à direita;
- 3. 0 < *U* < *V* = a, onde a $\in$ ${\rm I\!R}$ , ou seja, sabe-se o início e fim do        intervalo, a **censura intervalar**(CI) que será tratada neste trabalho.
+Quando se trabalha com dados com censura intervalar geralmente o tempo exato em que ocorre o evento de interesse não é conhecido, mas sim o intervalo de tempo em que isso ocorreu. Já foram descritas várias abordagens a fim de modelar este tipo de dado, como técnicas semi-paramétricas para análise de regressão com censura intervalar, modelo de tempo de falha acelerado baseado na distribuição Weibull com censura intervalar, métodos Bayesianos, etc. @Hashimoto.
 
-Censura intervalar ocorre com mais frequência em análises longitudinais e experimentações clínicas. Acontecendo mais em virtude do crescimento de dados envolvendo estudos sobre o vírus HIV. 
+Existem 3 tipos de censura intervalar os quais foram bem estudados:
 
-Este tipo de dados eram analisados com técnicas tradicionais de sobrevivência, onde se assumia que o evento de interesse ocorreu no fim ou na metade do intervalo, o que gerava erros de estimação e viés nos resultados @Lindsey1998. Após investigações a distribuição exponencial se mostrou mais eficaz quando se sabe o momento das inspeções @article.
+1. *U* = 0: portanto há uma censura à esquerda dos dados de sobrevivência;
 
-Para estimar os parâmetros da Regressão Exponencial com Censura Intervalar será utilizado o método da **Máxima** **Verissimilhança**(MV), assim como @Peng2009, mas com a utilização do software **R**(@R) para todas as simulações e análises.
+2. *V* = $\infty$: há censura à direita dos dados de sobrevivência;
 
-Os objetivos do presente trabalho são: *i)* simular uma base de dados e os resultados com parâmetros fixos; *ii)* estimar os parâmetros usando o método (MV); *iii)* comparar os resultados dos parâmetros estimados com os da simulação utilizando intervalo de confiança com $\boldsymbol{\alpha}$=0,05.
+3. Tanto *U* = 0 quanto *V* = $\infty$, este tipo de dado é chamado de dados em painel.
+
+Anteriormente, estes tipos de dados eram analisados com técnicas tradicionais de análise de sobrevivência, onde se assumia que o evento de interesse ocorreu no fim ou na metade do intervalo, o que gerava erros de estimação e viés nos resultados @Lindsey1998. Após investigações a distribuição exponencial se mostrou mais eficaz quando se sabe o momento das inspeções @article.
+
+Para estimar os parâmetros da Regressão Exponencial com Censura Intervalar será utilizado o método da Máxima Verissimilhança (MV), assim como @Peng2009, porém será utilizado o software R @R para todas as simulações e análises.
+
+Sendo assim, o objetivo do trabalho é: i) simular uma base de dados com censura intervalar e os resultados com parâmetros fixos; ii) estimar os parâmetros usando o método da MV; iii) comparar os resultados dos parâmetros estimados com os da simulação utilizando intervalo de confiança com $\boldsymbol{\alpha}$ = 0,05.
 
 # Modelo
 
